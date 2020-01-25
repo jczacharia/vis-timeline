@@ -119,11 +119,11 @@ export interface SubGroupVisibilityOptions {
 
 export interface DataGroup {
   className?: string;
-  content: string;
+  content: string | HTMLElement;
   id: IdType;
   options?: DataGroupOptions;
   style?: string;
-  subgroupOrder?: string | (() => void);
+  subgroupOrder?: string | ((a: any, b: any) => number);
   title?: string;
   nestedGroups?: IdType[];
   subgroupStack?: SubGroupStackOptions | boolean;
@@ -220,7 +220,7 @@ export interface TimelineTooltipOption {
   followMouse?: boolean;
   overflowMethod?: 'cap' | 'flip' | 'none';
   delay?: number;
-  template: (item: TimelineItem, editedData?: TimelineItem) => string;
+  template?: (item: TimelineItem, editedData?: TimelineItem) => string;
 }
 
 export type TimelineOptionsConfigureFunction = (option: string, path: string[]) => boolean;
@@ -239,17 +239,30 @@ export type TimelineOptionsOrientationType = string | TimelineOrientationOption;
 export type TimelineOptionsSnapFunction = (date: Date, scale: string, step: number) => Date | number;
 export type TimelineOptionsTemplateFunction = (item?: any, element?: any, data?: any) => string;
 export type TimelineOptionsComparisonFunction = (a: any, b: any) => number;
+export type TimelineOptionsGroupHeightModeType = 'auto' | 'fixed' | 'fitItems';
+export type TimelineOptionsClusterCriteriaFunction = (firstItem: TimelineItem, secondItem: TimelineItem) => boolean;
+export type TimelineOptionsCluster = {
+  titleTemplate?: string;
+  maxItems?: number;
+  clusterCriteria?: TimelineOptionsClusterCriteriaFunction;
+  showStipes?: boolean;
+  fitOnDoubleClick?: boolean;
+};
+export type TimelineOptionsEventType = 'box' | 'point' | 'range' | 'background';
+export type TimelineOptionsZoomKey = '' | 'altKey' | 'ctrlKey' | 'shiftKey' | 'metaKey';
 
 export interface TimelineOptions {
   align?: TimelineAlignType;
   autoResize?: boolean;
   clickToUse?: boolean;
+  cluster?: TimelineOptionsCluster;
   configure?: TimelineOptionsConfigureType;
   dataAttributes?: TimelineOptionsDataAttributesType;
   editable?: TimelineOptionsEditableType;
   end?: DateType;
   format?: TimelineFormatOption;
   groupEditable?: TimelineOptionsGroupEditableType;
+  groupHeightMode?: TimelineOptionsGroupHeightModeType;
   groupOrder?: TimelineOptionsGroupOrderType;
   groupOrderSwap?: TimelineOptionsGroupOrderSwapFunction;
   groupTemplate?: TimelineOptionsTemplateFunction;
@@ -271,7 +284,8 @@ export interface TimelineOptions {
   multiselectPerGroup?: boolean;
   onAdd?: TimelineOptionsItemCallbackFunction;
   onAddGroup?: TimelineOptionsGroupCallbackFunction;
-  onInitialDrawComplete?: (() => void);
+  onDropObjectOnItem?: any; // TODO
+  onInitialDrawComplete?: () => void;
   onUpdate?: TimelineOptionsItemCallbackFunction;
   onMove?: TimelineOptionsItemCallbackFunction;
   onMoveGroup?: TimelineOptionsGroupCallbackFunction;
@@ -295,15 +309,14 @@ export interface TimelineOptions {
   start?: DateType;
   template?: TimelineOptionsTemplateFunction;
   visibleFrameTemplate?: TimelineOptionsTemplateFunction;
-  throttleRedraw?: number;
   timeAxis?: TimelineTimeAxisOption;
-  type?: string;
+  type?: TimelineOptionsEventType;
   tooltip?: TimelineTooltipOption;
   tooltipOnItemUpdateTime?: boolean | { template(item: any): any };
   verticalScroll?: boolean;
   width?: HeightWidthType;
   zoomable?: boolean;
-  zoomKey?: string;
+  zoomKey?: TimelineOptionsZoomKey;
   zoomMax?: number;
   zoomMin?: number;
 }
@@ -317,6 +330,7 @@ export type TimelineAnimationType = boolean | AnimationOptions;
 
 export interface TimelineAnimationOptions {
   animation?: TimelineAnimationType;
+  zoom?: boolean;
 }
 
 export interface TimelineEventPropertiesResult {
@@ -753,6 +767,7 @@ export interface TimelineGroup {
   visible?: boolean;
   nestedGroups?: IdType[];
   showNested?: boolean;
+  subgroupVisibility?: SubGroupVisibilityOptions;
 }
 
 /**
